@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Calculator App (jQuery)</title>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .budget-calculator-app {
+            max-width: 800px;
+            width: 100%;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 10px 0;
+            background: #000;
+            color: white;
+            font-size: 1.8em;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+            font-size: 1.1em;
+        }
+
+        #totalAmount {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.1em;
+            margin: 20px 0 10px;
+            color: #333;
+        }
+
+        /* Percentage Inputs Layout */
+        .percentage-inputs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 15px 0 25px;
+        }
+        
+        .pct-group {
+            text-align: center;
+        }
+        
+        .percentage-inputs input {
+            text-align: center;
+            font-size: 1.1em;
+            margin-bottom: 0;
+        }
+
+
+        /* Evaluate Button */
+        #evaluateBtn {
+            display: block;
+            width: 50%;
+            margin: 20px auto 30px;
+            padding: 12px 20px;
+            background-color: #007bff; /* Blue */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+
+        #evaluateBtn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Output Boxes Layout */
+        .output-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .output-box {
+            color: white;
+            padding: 15px 5px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .output-box p:first-child {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .output-box .value {
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+
+        /* Specific box colors (Matching the image roughly) */
+        .blue { background-color: #2196F3; }
+        .green { background-color: #4CAF50; }
+        .cyan { background-color: #00BCD4; }
+        .red { background-color: #F44336; }
+    </style>
+</head>
+<body>
+
+    <div class="budget-calculator-app">
+        <h1>Budget Calculator App</h1>
+
+        <label for="totalAmount">Enter Amount that you want to Manage</label>
+        <input type="number" id="totalAmount" value="15000">
+
+        <p class="section-title">How would you like to divide your money?</p>
+
+        <div class="percentage-inputs">
+            <div class="pct-group">
+                <label for="roomRentPct">Room Rent(%)</label>
+                <input type="number" id="roomRentPct" value="35">
+            </div>
+            
+            <div class="pct-group">
+                <label for="accessoriesPct">Accessories(%)</label>
+                <input type="number" id="accessoriesPct" value="15">
+            </div>
+            
+            <div class="pct-group">
+                <label for="emergencyPct">Emergency(%)</label>
+                <input type="number" id="emergencyPct" value="20">
+            </div>
+            
+            <div class="pct-group">
+                <label for="savingPct">Saving(%)</label>
+                <input type="number" id="savingPct" value="30">
+            </div>
+        </div>
+
+        <button id="evaluateBtn">Evaluate My Money</button>
+
+        <div class="output-container">
+            <div class="output-box blue">
+                <p>Room Rent</p>
+                <p class="value" id="roomRentValue">Rs.5250.00</p>
+            </div>
+            
+            <div class="output-box green">
+                <p>Accessories</p>
+                <p class="value" id="accessoriesValue">Rs.2250.00</p>
+            </div>
+            
+            <div class="output-box cyan">
+                <p>Emergency</p>
+                <p class="value" id="emergencyValue">Rs.3000.00</p>
+            </div>
+            
+            <div class="output-box red">
+                <p>Saving</p>
+                <p class="value" id="savingValue">Rs.4500.00</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+
+            // Initialize the output values based on the initial input for a clean start
+            // The initial values are set in the HTML for visual consistency with the image, 
+            // but the logic below is what runs when the button is pressed.
+            
+            $("#evaluateBtn").click(function() {
+                // 1. Get the total amount
+                const totalAmount = parseFloat($("#totalAmount").val());
+
+                // 2. Get the percentage values (default to 0 if input is empty)
+                const roomRentPct = parseFloat($("#roomRentPct").val()) || 0;
+                const accessoriesPct = parseFloat($("#accessoriesPct").val()) || 0;
+                const emergencyPct = parseFloat($("#emergencyPct").val()) || 0;
+                const savingPct = parseFloat($("#savingPct").val()) || 0;
+
+                // Input validation: Check if total amount is a valid number
+                if (isNaN(totalAmount) || totalAmount <= 0) {
+                    alert("Please enter a valid amount to manage (greater than zero).");
+                    return;
+                }
+
+                // 3. Calculate the total percentage
+                const totalPct = roomRentPct + accessoriesPct + emergencyPct + savingPct;
+
+                // Helper function to format the output string
+                const formatCurrency = (amount) => {
+                    // Ensure two decimal places
+                    return `Rs.${amount.toFixed(2)}`;
+                };
+                
+                // 4. Validation: Check if the total percentage is 100
+                // Use a small epsilon for floating point comparison to be safe, 
+                // but for user inputs, a direct comparison is often clearer.
+                if (Math.abs(totalPct - 100) > 0.01) { 
+                    alert(`The sum of all percentages is ${totalPct.toFixed(2)}%. It must be exactly 100% to divide the full amount.`);
+                    
+                    // Clear the results if the validation fails
+                    $("#roomRentValue").text("Rs.0.00");
+                    $("#accessoriesValue").text("Rs.0.00");
+                    $("#emergencyValue").text("Rs.0.00");
+                    $("#savingValue").text("Rs.0.00"); 
+                    
+                    return;
+                }
+
+                // 5. Calculate the monetary values
+                // Formula: (Total Amount * Percentage) / 100
+
+                const roomRentValue = (totalAmount * roomRentPct) / 100;
+                const accessoriesValue = (totalAmount * accessoriesPct) / 100;
+                const emergencyValue = (totalAmount * emergencyPct) / 100;
+                const savingValue = (totalAmount * savingPct) / 100;
+
+                // 6. Display the calculated values in the output boxes
+                
+                $("#roomRentValue").text(formatCurrency(roomRentValue));
+                $("#accessoriesValue").text(formatCurrency(accessoriesValue));
+                $("#emergencyValue").text(formatCurrency(emergencyValue));
+                $("#savingValue").text(formatCurrency(savingValue));
+
+            });
+        });
+    </script>
+</body>
+</html>
